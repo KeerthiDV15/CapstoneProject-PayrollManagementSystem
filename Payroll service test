@@ -1,0 +1,96 @@
+package com.kv.service;
+
+import com.kv.entity.Employee;
+import com.kv.entity.Payroll;
+import com.kv.repository.PayrollRepository;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@SpringBootTest
+public class PayrollServiceTest {
+
+    @MockBean
+    private PayrollRepository payrollRepository;
+
+    @MockBean
+    private EmployeeService employeeService;
+
+    @MockBean
+    private TaxService taxService;
+
+    @Autowired
+    private PayrollService payrollService;
+
+    @Test
+    public void testGetPayroll() {
+        Payroll payroll = new Payroll();
+        payroll.setId(1L);
+        when(payrollRepository.findById(1L)).thenReturn(Optional.of(payroll));
+
+        Payroll result = payrollService.getPayroll(1L);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        verify(payrollRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    public void testDeletePayroll() {
+        Payroll payroll = new Payroll();
+        payroll.setId(1L);
+
+        when(payrollRepository.findById(1L)).thenReturn(Optional.of(payroll));
+
+        payrollService.deletePayroll(1L);
+
+        verify(payrollRepository, times(1)).delete(payroll);
+    }
+
+
+    @Test
+    public void testGetAllPayrolls() {
+        Payroll payroll1 = new Payroll();
+        payroll1.setBasicSalary(50000.0);
+        Payroll payroll2 = new Payroll();
+        payroll2.setBasicSalary(60000.0);
+
+        when(payrollRepository.findAll()).thenReturn(List.of(payroll1, payroll2));
+
+        List<Payroll> result = payrollService.getAllPayrolls();
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(50000.0, result.get(0).getBasicSalary());
+        assertEquals(60000.0, result.get(1).getBasicSalary());
+        verify(payrollRepository, times(1)).findAll();
+    }
+
+    @Test
+    public void testUpdatePayrollNotFound() {
+        Payroll updatedPayroll = new Payroll();
+        updatedPayroll.setNetSalary(45000.0);
+
+        when(payrollRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> payrollService.updatePayroll(1L, updatedPayroll));
+        verify(payrollRepository, never()).save(any(Payroll.class));
+    }
+
+    @Test
+    public void testDeletePayrollNotFound() {
+        when(payrollRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> payrollService.deletePayroll(1L));
+        verify(payrollRepository, never()).delete(any(Payroll.class));
+    }
+    
+}
+

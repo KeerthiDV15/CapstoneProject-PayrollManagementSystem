@@ -1,0 +1,61 @@
+package com.kv.service;
+
+import org.springframework.stereotype.Service;
+import com.kv.entity.Employee;
+import com.kv.entity.Payroll;
+import com.kv.repository.PayrollRepository;
+import java.util.Date;
+import java.util.List;
+
+@Service
+public class PayrollService {
+
+    private final PayrollRepository payrollRepository;
+    private final EmployeeService employeeService;
+    private final TaxService taxService;
+
+    public PayrollService(PayrollRepository payrollRepository, EmployeeService employeeService, TaxService taxService) {
+        this.payrollRepository = payrollRepository;
+        this.employeeService = employeeService;
+        this.taxService = taxService;
+    }
+
+    public Payroll processPayroll(Long employeeId) {
+        Employee employee = employeeService.getEmployee(employeeId);
+        Double basicSalary = employee.getSalary();
+        Double annualSalary = basicSalary * 12;
+        Double taxDeductions = taxService.calculateAnnualTax(annualSalary) / 12;
+        Double netSalary = basicSalary - taxDeductions;
+
+        Payroll payroll = new Payroll();
+        payroll.setEmployee(employee);
+        payroll.setBasicSalary(basicSalary);
+        payroll.setTaxDeductions(taxDeductions);
+        payroll.setNetSalary(netSalary);
+        payroll.setPayDate(new Date());
+
+        return payrollRepository.save(payroll);
+    }
+
+    public Payroll getPayroll(Long id) {
+        return payrollRepository.findById(id).orElseThrow(() -> new RuntimeException("Payroll not found"));
+    }
+
+    public Payroll updatePayroll(Long id, Payroll payrollDetails) {
+        Payroll payroll = payrollRepository.findById(id).orElseThrow(() -> new RuntimeException("Payroll not found"));
+        payroll.setBasicSalary(payrollDetails.getBasicSalary());
+        payroll.setTaxDeductions(payrollDetails.getTaxDeductions());
+        payroll.setNetSalary(payrollDetails.getNetSalary());
+        payroll.setPayDate(payrollDetails.getPayDate());
+        return payrollRepository.save(payroll);
+    }
+
+    public void deletePayroll(Long id) {
+        Payroll payroll = payrollRepository.findById(id).orElseThrow(() -> new RuntimeException("Payroll not found"));
+        payrollRepository.delete(payroll);
+    }
+
+    public List<Payroll> getAllPayrolls() {
+        return payrollRepository.findAll();
+    }
+}

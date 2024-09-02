@@ -1,0 +1,50 @@
+package com.kv.controller;
+
+import com.kv.entity.Payroll;
+import com.kv.service.PayrollService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/payroll")
+public class PayrollController {
+
+    private final PayrollService payrollService;
+
+    public PayrollController(PayrollService payrollService) {
+        this.payrollService = payrollService;
+    }
+
+    @PostMapping("/{employeeId}")
+    public ResponseEntity<Payroll> processPayroll(@PathVariable Long employeeId) {
+        Payroll payroll = payrollService.processPayroll(employeeId);
+        return new ResponseEntity<>(payroll, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Payroll> getPayroll(@PathVariable Long id) {
+        Payroll payroll = payrollService.getPayroll(id);
+        return new ResponseEntity<>(payroll, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Payroll> updatePayroll(@PathVariable Long id, @RequestBody Payroll payrollDetails) {
+        Payroll updatedPayroll = payrollService.updatePayroll(id, payrollDetails);
+        return new ResponseEntity<>(updatedPayroll, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePayroll(@PathVariable Long id) {
+        payrollService.deletePayroll(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/report")
+    public ResponseEntity<List<Payroll>> getPayrollReport() {
+        List<Payroll> payrolls = payrollService.getAllPayrolls();
+        return new ResponseEntity<>(payrolls, HttpStatus.OK);
+    }
+}

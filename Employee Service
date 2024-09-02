@@ -1,0 +1,75 @@
+package com.kv.service;
+
+import org.springframework.stereotype.Service;
+import com.kv.entity.Employee;
+import com.kv.repository.EmployeeRepository;
+import java.util.List;
+
+@Service
+public class EmployeeService {
+
+    private final EmployeeRepository employeeRepository;
+
+    public EmployeeService(EmployeeRepository employeeRepository) {
+        this.employeeRepository = employeeRepository;
+    }
+
+    public Employee addEmployee(Employee employee) {
+        employee.setSalary(calculateSalary(employee));
+        return employeeRepository.save(employee);
+    }
+
+    public Employee updateEmployee(Long id, Employee updatedEmployee) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+        employee.setName(updatedEmployee.getName());
+        employee.setAge(updatedEmployee.getAge());
+        employee.setDesignation(updatedEmployee.getDesignation());
+        employee.setRating(updatedEmployee.getRating());
+        employee.setSalary(calculateSalary(updatedEmployee));
+        return employeeRepository.save(employee);
+    }
+
+    public Employee getEmployee(Long id) {
+        return employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+    }
+
+    public void deleteEmployee(Long id) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+        employeeRepository.delete(employee);
+    }
+
+    public List<Employee> getAllEmployees() {
+        return employeeRepository.findAll();
+    }
+
+    private Double calculateSalary(Employee employee) {
+        int age = employee.getAge();
+        int rating = employee.getRating();
+        double baseSalary;
+
+        if (age >= 21 && age <= 26) {
+            baseSalary = 40000 - (rating - 1) * 0.05 * 40000;
+        } else if (age >= 26 && age <= 35) {
+            baseSalary = switch (employee.getDesignation()) {
+                case "Senior Developer" -> 80000 - (rating - 1) * 0.05 * 80000;
+                case "Tech Lead" -> 90000 - (rating - 1) * 0.05 * 90000;
+                case "Architect" -> 100000 - (rating - 1) * 0.05 * 100000;
+                default -> 41000;
+            };
+        } else if (age >= 35 && age <= 60) {
+            baseSalary = switch (employee.getDesignation()) {
+                case "Manager" -> 150000 - (rating - 1) * 0.05 * 150000;
+                case "Senior Manager" -> 200000 - (rating - 1) * 0.05 * 200000;
+                case "Delivery Head" -> 300000 - (rating - 1) * 0.05 * 300000;
+                default -> 100000;
+            };
+        } else {
+            baseSalary = 30000; 
+        }
+
+        return baseSalary;
+    }
+}

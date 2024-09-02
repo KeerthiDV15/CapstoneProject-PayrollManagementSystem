@@ -1,0 +1,116 @@
+package com.kv.entity;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Column;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
+@Entity
+@Table(name = "Employee") // Specifies the table name
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Employee {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id") // Specifies the column name (optional if the same as field name)
+    private Long id;
+
+    @Column(name = "name", nullable = false, length = 255) // Specifies the column name, not null, max length 255
+    private String name;
+
+    @Column(name = "age") // Specifies the column name
+    private Integer age;
+
+    @Column(name = "designation", length = 255) // Specifies the column name, max length 255
+    private String designation;
+
+    @Column(name = "rating") // Specifies the column name
+    private Integer rating;
+
+    @Column(name = "salary") // Specifies the column name
+    private Double salary;
+
+    // Getters and setters (can be omitted if using Lombok's @Data annotation)
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public String getDesignation() {
+        return designation;
+    }
+
+    public void setDesignation(String designation) {
+        this.designation = designation;
+    }
+
+    public Integer getRating() {
+        return rating;
+    }
+
+    public void setRating(Integer rating) {
+        this.rating = rating;
+    }
+
+    public Double getSalary() {
+        return salary;
+    }
+
+    public void setSalary(Double salary) {
+        this.salary = salary;
+    }
+
+    // SQL query to create the corresponding table
+    /*
+        CREATE TABLE Employee (
+            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            age INT,
+            designation VARCHAR(255),
+            rating INT,
+            salary DOUBLE
+        );
+    */
+
+    // Constructors
+    public Employee(Long id, String name, Integer age, String designation, Integer rating, Double salary) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.age = age;
+        this.designation = designation;
+        this.rating = rating;
+        this.salary = salary;
+    }
+
+    public Employee() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+}

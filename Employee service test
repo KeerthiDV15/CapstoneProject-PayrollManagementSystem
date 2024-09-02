@@ -1,0 +1,110 @@
+package com.kv.service;
+
+import com.kv.entity.Employee;
+import com.kv.repository.EmployeeRepository;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@SpringBootTest
+public class EmployeeServiceTest {
+
+    @MockBean
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private EmployeeService employeeService;
+
+    
+    @Test
+    public void testGetEmployee() {
+        Employee employee = new Employee();
+        employee.setId(1L);
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee));
+
+        Employee result = employeeService.getEmployee(1L);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        verify(employeeRepository, times(1)).findById(1L);
+    }
+
+   
+    @Test
+    public void testDeleteEmployee() {
+        Employee employee = new Employee();
+        employee.setId(1L);
+
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee));
+
+        employeeService.deleteEmployee(1L);
+
+        verify(employeeRepository, times(1)).delete(employee);
+    }
+
+
+    @Test
+    public void testGetAllEmployees() {
+        Employee employee1 = new Employee();
+        employee1.setName("John Doe");
+        Employee employee2 = new Employee();
+        employee2.setName("Jane Doe");
+
+        when(employeeRepository.findAll()).thenReturn(List.of(employee1, employee2));
+
+        List<Employee> result = employeeService.getAllEmployees();
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("John Doe", result.get(0).getName());
+        assertEquals("Jane Doe", result.get(1).getName());
+        verify(employeeRepository, times(1)).findAll();
+    }
+
+    @Test
+    public void testAddEmployeeWithSalaryCalculation() {
+        Employee employee = new Employee();
+        employee.setName("John Doe");
+        employee.setAge(30);
+        employee.setDesignation("Senior Developer");
+        employee.setRating(3);
+
+        when(employeeRepository.save(any(Employee.class))).thenAnswer(invocation -> {
+            Employee savedEmployee = invocation.getArgument(0);
+            assertEquals(72000, savedEmployee.getSalary());
+            return savedEmployee;
+        });
+
+        Employee result = employeeService.addEmployee(employee);
+
+        assertNotNull(result);
+        assertEquals("John Doe", result.getName());
+        verify(employeeRepository, times(1)).save(employee);
+    }
+
+    @Test
+    public void testUpdateEmployeeNotFound() {
+        Employee updatedEmployee = new Employee();
+        updatedEmployee.setName("Jane Doe");
+
+        when(employeeRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> employeeService.updateEmployee(1L, updatedEmployee));
+        verify(employeeRepository, never()).save(any(Employee.class));
+    }
+
+    @Test
+    public void testDeleteEmployeeNotFound() {
+        when(employeeRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> employeeService.deleteEmployee(1L));
+        verify(employeeRepository, never()).delete(any(Employee.class));
+    }
+}

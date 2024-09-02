@@ -1,0 +1,122 @@
+package com.kv.entity;
+
+import java.util.Date;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Column;
+import jakarta.persistence.Table;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
+@Entity
+@Table(name = "Payroll") // Specifies the table name
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Payroll {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id") // Specifies the column name (optional if the same as field name)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "employee_id", nullable = false) // Foreign key column for Employee
+    private Employee employee;
+
+    @Column(name = "basic_salary", nullable = false) // Basic salary column
+    private Double basicSalary;
+
+    @Column(name = "tax_deductions", nullable = false) // Tax deductions column
+    private Double taxDeductions;
+
+    @Column(name = "net_salary", nullable = false) // Net salary column
+    private Double netSalary;
+
+    @Column(name = "pay_date", nullable = false) // Payment date column
+    private Date payDate;
+
+    // Getters and setters (can be omitted if using Lombok's @Data annotation)
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
+
+    public Double getBasicSalary() {
+        return basicSalary;
+    }
+
+    public void setBasicSalary(Double basicSalary) {
+        this.basicSalary = basicSalary;
+    }
+
+    public Double getTaxDeductions() {
+        return taxDeductions;
+    }
+
+    public void setTaxDeductions(Double taxDeductions) {
+        this.taxDeductions = taxDeductions;
+    }
+
+    public Double getNetSalary() {
+        return netSalary;
+    }
+
+    public void setNetSalary(Double netSalary) {
+        this.netSalary = netSalary;
+    }
+
+    public Date getPayDate() {
+        return payDate;
+    }
+
+    public void setPayDate(Date payDate) {
+        this.payDate = payDate;
+    }
+
+    // SQL query to create the corresponding table
+    /*
+        CREATE TABLE Payroll (
+            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            employee_id BIGINT NOT NULL,
+            basic_salary DOUBLE NOT NULL,
+            tax_deductions DOUBLE NOT NULL,
+            net_salary DOUBLE NOT NULL,
+            pay_date DATE NOT NULL,
+            FOREIGN KEY (employee_id) REFERENCES Employee(id)
+        );
+    */
+
+    // Constructors
+    public Payroll(Long id, Employee employee, Double basicSalary, Double taxDeductions, Double netSalary, Date payDate) {
+        super();
+        this.id = id;
+        this.employee = employee;
+        this.basicSalary = basicSalary;
+        this.taxDeductions = taxDeductions;
+        this.netSalary = netSalary;
+        this.payDate = payDate;
+    }
+
+    public Payroll() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+}
